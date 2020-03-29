@@ -18,6 +18,11 @@ app.config['MYSQL_DB'] = Config.MYSQL_DB
 #Intialize MySQL
 mysql = MySQL(app)
 
+
+@app.route('/health', methods=['GET','POST'])
+def health_check():
+    return 'I am working fine'
+
 # http://localhost:5000/login/ - this will be the login page, we need to use both GET and POST requests
 @app.route('/shopbuddy/login', methods=['POST'])
 def login():
