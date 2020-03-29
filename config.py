@@ -9,12 +9,12 @@ class Config(object):
 
 class Schema(object):
     # Enter your database connection details below
-    ACCOUNTS = 'Accounts'
-    STORE = 'Store'
-    CUSTOMER = 'Customer'
-    PRODUCT = 'Product'
-    ORDER = 'Order'
-    STORE_PRODUCT = 'Store_Product'
-    ORDER_PRODUCT = 'Order_Product'
-    PAYMENT = 'Payment'
+    ACCOUNTS = 'accounts'
+    STORE = 'store'
+    CUSTOMER = 'customer'
+    PRODUCT = 'product'
+    ORDER = 'order'
+    STORE_PRODUCT = 'store_product'
+    ORDER_PRODUCT = 'order_product'
+    PAYMENT = 'payment'
 
