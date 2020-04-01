@@ -6,6 +6,12 @@ class Config(object):
     MYSQL_DB = 'abhibansal$shopbuddy_db'
     SECRET_KEY = 'c0r0na-c0v!D-19'
 
+    # MYSQL_HOST = 'localhost'
+    # MYSQL_USER = 'root'
+    # MYSQL_PASSWORD = '0000'
+    # MYSQL_DB = 'shopbuddy_db'
+    # SECRET_KEY = 'c0r0na-c0v!D-19'
+
 
 class Schema(object):
     # Enter your database connection details below

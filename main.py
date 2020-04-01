@@ -1,9 +1,10 @@
-from flask import Flask,current_app, render_template, request, redirect, url_for, session
+from flask import Flask,jsonify, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
-import json
 from config import Config,Schema
+import json
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 # Change this to your secret key (can be anything, it's for extra protection)
@@ -21,7 +22,8 @@ mysql = MySQL(app)
 
 @app.route('/health', methods=['GET','POST'])
 def health_check():
-    return 'I am working fine'
+    msg= jsonify({'success': 'I am working fine'}), 200
+    return msg
 
 # http://localhost:5000/login/ - this will be the login page, we need to use both GET and POST requests
 @app.route('/shopbuddy/login', methods=['POST'])
@@ -35,10 +37,11 @@ def login():
         password = request.form['password']
         # Check if account exists using MySQL
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM '+Schema.ACCOUNTS+' WHERE username = %s AND password = %s', (username, password))
+
+        cursor.execute('SELECT * FROM '+Schema.ACCOUNTS+' WHERE username = %s', [username])
         # Fetch one record and return result
         account = cursor.fetchone()
-        if account:
+        if account and check_password_hash(account['password'], password):
             # Create session data, we can access this data in other routes
             session['loggedin'] = True
             session['acc_id'] = account['acc_id']
@@ -49,8 +52,7 @@ def login():
             ##return redirect(url_for('home'))
         else:
             # Account doesnt exist or username/password incorrect
-            msg = 'Incorrect username/password!'
-    print(msg)
+            msg = jsonify({'error': 'An error occurred logging in'}), 500
     return msg
     ##return render_template('index.html', msg=msg)
 
@@ -69,6 +71,7 @@ def logout():
 @app.route('/shopbuddy/register', methods=['POST'])
 def register():
     # Output message if something goes wrong...
+    global store_name
     msg = ''
     # Check if "username", "password" and "phone" POST requests exist (user submitted form)
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'phone' in request.form:
@@ -99,7 +102,8 @@ def register():
             msg = 'Please fill out the form!'
         else:
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
-            cursor.execute('INSERT INTO '+Schema.ACCOUNTS+' VALUES (NULL, %s, %s, %s, %s)', [username, password, phone, usertype])
+            hashed_pass= generate_password_hash(password)
+            cursor.execute('INSERT INTO '+Schema.ACCOUNTS+' VALUES (NULL, %s, %s, %s, %s)', [username, hashed_pass, phone, usertype])
             mysql.connection.commit()
             cursor.execute('SELECT * FROM ' + Schema.ACCOUNTS + ' WHERE username = %s', [username])
             acc_id = cursor.fetchone()['acc_id']
